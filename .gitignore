@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Data directories (keep the folders, ignore the contents)
+data/01_raw/*
+!data/01_raw/.gitkeep
+data/02_intermediate/*
+!data/02_intermediate/.gitkeep
+data/03_final/*
+!data/03_final/.gitkeep
+
+# Outputs (keep the folders, ignore the contents)
+outputs/model_0_5_plots/*
+!outputs/model_0_5_plots/.gitkeep
+outputs/model_1_0_plots/*
+!outputs/model_1_0_plots/.gitkeep
+
+# Virtual environment
+venv/
+env/
+.env
+
+# IDEs
+.vscode/
+.idea/
