@@ -1,0 +1,13 @@
+model_0_5:
+  parameters:
+    alpha_0: 0.001     # Basal leak expression rate (1/min)
+    alpha_max: 1.0     # Maximum transcription rate (1/min)
+    K_d: 1.0           # Activation constant (Arabinose concentration units)
+    n: 2.0             # Hill coefficient (cooperativity)
+    gamma_m: 0.1       # mRNA degradation rate (1/min, half-life ~7 min)
+    beta_p: 0.5        # Translation rate (1/min)
+    gamma_p: 0.05      # Protein degradation & dilution rate (1/min, half-life ~14 min)
+  simulation:
+    t_end: 200         # Simulation time (minutes)
+    t_steps: 1000      # Number of time steps
+    ara_concentrations: [0, 0.1, 0.5, 1.0, 5.0, 10.0] # Test concentrations for Arabinose
