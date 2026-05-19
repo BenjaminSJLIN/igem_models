@@ -2,11 +2,7 @@
 
 This repository contains the mathematical models and simulation pipeline for the iGEM project.
 
-## Model 0.5: CRISPR-Cas12a Activation Dynamics
-
-This module simulates the expression dynamics of the Cas12a protein activated by L-Arabinose (Ara). It utilizes a system of Ordinary Differential Equations (ODEs) to model both mRNA and Protein levels over time based on the Hill Equation.
-
-### Project Structure
+## Project Structure
 
 - `data/`: Contains raw, intermediate, and final data outputs.
 - `models/`: Contains the logic and equations for each stage.
@@ -43,6 +39,3 @@ This will:
 3. Save the simulated data to `data/02_intermediate/model_0_5_result.csv`.
 4. Generate and save time-series and dose-response plots in `outputs/model_0_5_plots/`.
 
-## Configuration
-
-You can easily adjust biological parameters (e.g., maximum transcription rate, degradation rates, Hill coefficient) in the `config.yaml` file without modifying the code.
