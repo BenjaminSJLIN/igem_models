@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.integrate import odeint
 from .equations import cas12a_dynamics
 
-def run(config):
+def run(config, input_data=None):
     """
     Run simulation for Model 0.5 across different Arabinose concentrations.
     """

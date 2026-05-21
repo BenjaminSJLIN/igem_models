@@ -11,3 +11,20 @@ model_0_5:
     t_end: 200         # Simulation time (minutes)
     t_steps: 1000      # Number of time steps
     ara_concentrations: [0, 0.1, 0.5, 1.0, 5.0, 10.0] # Test concentrations for Arabinose
+
+model_1_0:
+  parameters:
+    K_D: 1.0           # Target DNA binding affinity (nM)
+    k_cat: 100.0       # Max turnover rate for ssDNA cleavage (1/min)
+    K_M: 50.0          # Michaelis constant for ssDNA (nM)
+    P_threshold: 50.0  # Minimum cleaved product concentration required for detection (nM)
+    t_incubate: 30.0   # Incubation time for the cleavage reaction (minutes)
+  simulation:
+    # We use numpy logspace equivalent inputs for sweeping ranges
+    target_dna_min: 0.001
+    target_dna_max: 100.0
+    target_dna_steps: 100
+    
+    ssdna_min: 0.1
+    ssdna_max: 1000.0
+    ssdna_steps: 100
