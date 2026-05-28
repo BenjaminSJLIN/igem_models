@@ -28,3 +28,24 @@ model_1_0:
     ssdna_min: 0.1
     ssdna_max: 1000.0
     ssdna_steps: 100
+
+model_2:
+  parameters:
+    alpha_RCR: 10.0    # ssDNA production rate
+    P_s: 1.0           # Sensor Plasmid Concentration
+    G: 5.0             # g2p expression level
+    K_G: 2.0           # g2p saturation constant
+    delta_s: 0.1       # ssDNA degradation rate
+  simulation:
+    t_end: 200
+    t_steps: 1000
+
+model_3:
+  parameters:
+    r: 0.05            # Natural replication rate (1/min)
+    mu: 0.02           # Natural dilution rate (1/min)
+    k_loss: 0.01       # Plasmid death rate constant
+  simulation:
+    t_end: 200
+    t_steps: 1000
+    P_s_initial: 1.0

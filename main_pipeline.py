@@ -82,62 +82,103 @@ def run_stage(stage_name, plot_configs, input_data=None):
     # 回傳結果給下一個 model 使用
     return result_df
 
-def run_pipeline():
+def run_pipeline(models_to_run):
     print("--- Pipeline Execution Started ---")
     
-    # 執行 Model 0.5
-    model_0_5_plots = [
-        {"type": "line", "x_col": "Time", "y_col": "Cas12a", "hue_col": "Ara_Concentration", "title": "Cas12a Expression Dynamics over Time", "filename": "cas12a_time_series.png", "legend_title": "[Ara]", "x_label": "Time (minutes)"},
-        {"type": "line", "x_col": "Time", "y_col": "mRNA", "hue_col": "Ara_Concentration", "title": "Cas12a mRNA Dynamics over Time", "filename": "mRNA_time_series.png", "legend_title": "[Ara]", "x_label": "Time (minutes)"},
-        {"type": "dose_response", "x_col": "Ara_Concentration", "y_col": "Cas12a", "title": "Steady State Cas12a vs Arabinose Concentration", "filename": "cas12a_dose_response.png", "x_label": "Arabinose Concentration [Ara]"}
-    ]
-    # 接住 model_0_5 的輸出
-    result_0_5 = run_stage("model_0_5", model_0_5_plots)
-    
-    # 執行 Model 1.0 (串接 result_0_5 當作輸入)
-    if result_0_5 is not None:
-        model_1_0_plots = [
-            # 1. Activation vs Target DNA (Sweeping Target DNA)
+    result_0_5 = None
+    if "model_0_5" in models_to_run or "all" in models_to_run:
+        # 執行 Model 0.5
+        model_0_5_plots = [
+            {"type": "line", "x_col": "Time", "y_col": "Cas12a", "hue_col": "Ara_Concentration", "title": "Cas12a Expression Dynamics over Time", "filename": "cas12a_time_series.png", "legend_title": "[Ara]", "x_label": "Time (minutes)"},
+            {"type": "line", "x_col": "Time", "y_col": "mRNA", "hue_col": "Ara_Concentration", "title": "Cas12a mRNA Dynamics over Time", "filename": "mRNA_time_series.png", "legend_title": "[Ara]", "x_label": "Time (minutes)"},
+            {"type": "dose_response", "x_col": "Ara_Concentration", "y_col": "Cas12a", "title": "Steady State Cas12a vs Arabinose Concentration", "filename": "cas12a_dose_response.png", "x_label": "Arabinose Concentration [Ara]"}
+        ]
+        result_0_5 = run_stage("model_0_5", model_0_5_plots)
+    else:
+        path = os.path.join("data", "02_intermediate", "model_0_5_result.csv")
+        if os.path.exists(path):
+            result_0_5 = pd.read_csv(path)
+            
+    result_1_0 = None
+    if "model_1_0" in models_to_run or "all" in models_to_run:
+        if result_0_5 is not None:
+            model_1_0_plots = [
+                {
+                    "type": "line", 
+                    "analysis_filter": "Activation",
+                    "x_col": "Target_DNA", 
+                    "y_col": "Activated_Cas12a", 
+                    "hue_col": "Ara_Concentration", 
+                    "title": "Cas12a Activation vs Target DNA", 
+                    "filename": "activation_curve.png", 
+                    "legend_title": "Inducer [Ara]",
+                    "x_label": "Target DNA (nM)",
+                    "log_x": True
+                },
+                {
+                    "type": "line", 
+                    "analysis_filter": "Cleavage",
+                    "x_col": "ssDNA", 
+                    "y_col": "Cleavage_Rate", 
+                    "hue_col": "Target_DNA", 
+                    "title": "Cleavage Rate vs ssDNA Substrate", 
+                    "filename": "cleavage_kinetics.png", 
+                    "legend_title": "Target DNA (nM)",
+                    "x_label": "ssDNA Substrate (nM)",
+                    "log_x": True
+                },
+                {
+                    "type": "dose_response", 
+                    "analysis_filter": "LOD",
+                    "x_col": "Ara_Concentration", 
+                    "y_col": "LOD", 
+                    "title": "Limit of Detection (LOD) vs Inducer Concentration", 
+                    "filename": "lod_curve.png", 
+                    "x_label": "Arabinose Concentration [Ara]",
+                    "log_x": False
+                }
+            ]
+            result_1_0 = run_stage("model_1_0", model_1_0_plots, input_data=result_0_5)
+    else:
+        path = os.path.join("data", "02_intermediate", "model_1_0_result.csv")
+        if os.path.exists(path):
+            result_1_0 = pd.read_csv(path)
+
+    if "model_2" in models_to_run or "all" in models_to_run:
+        model_2_plots = [
             {
                 "type": "line", 
-                "analysis_filter": "Activation",
-                "x_col": "Target_DNA", 
-                "y_col": "Activated_Cas12a", 
-                "hue_col": "Ara_Concentration", 
-                "title": "Cas12a Activation vs Target DNA", 
-                "filename": "activation_curve.png", 
-                "legend_title": "Inducer [Ara]",
-                "x_label": "Target DNA (nM)",
-                "log_x": True
-            },
-            # 2. Cleavage Rate vs ssDNA (Sweeping ssDNA for fixed max Arabinose, hue=Target DNA)
-            {
-                "type": "line", 
-                "analysis_filter": "Cleavage",
-                "x_col": "ssDNA", 
-                "y_col": "Cleavage_Rate", 
+                "x_col": "Time", 
+                "y_col": "ssDNA", 
                 "hue_col": "Target_DNA", 
-                "title": "Cleavage Rate vs ssDNA Substrate", 
-                "filename": "cleavage_kinetics.png", 
+                "title": "ssDNA Accumulation via RCR", 
+                "filename": "rcr_ssDNA_time_series.png", 
                 "legend_title": "Target DNA (nM)",
-                "x_label": "ssDNA Substrate (nM)",
-                "log_x": True
-            },
-            # 3. LOD vs Arabinose Concentration (Using dose_response plotter without Time grouping)
-            {
-                "type": "dose_response", 
-                "analysis_filter": "LOD",
-                "x_col": "Ara_Concentration", 
-                "y_col": "LOD", 
-                "title": "Limit of Detection (LOD) vs Inducer Concentration", 
-                "filename": "lod_curve.png", 
-                "x_label": "Arabinose Concentration [Ara]",
-                "log_x": False
+                "x_label": "Time (minutes)"
             }
         ]
-        result_1_0 = run_stage("model_1_0", model_1_0_plots, input_data=result_0_5)
+        run_stage("model_2", model_2_plots, input_data=result_1_0)
+
+    if "model_3" in models_to_run or "all" in models_to_run:
+        model_3_plots = [
+            {
+                "type": "line", 
+                "x_col": "Time", 
+                "y_col": "Plasmid_Concentration", 
+                "hue_col": "Target_DNA", 
+                "title": "Sensor Plasmid Degradation over Time", 
+                "filename": "plasmid_degradation_time_series.png", 
+                "legend_title": "Target DNA (nM)",
+                "x_label": "Time (minutes)"
+            }
+        ]
+        run_stage("model_3", model_3_plots, input_data=result_1_0)
     
     print("\n--- Pipeline Execution Completed! ---")
 
 if __name__ == "__main__":
-    run_pipeline()
+    import argparse
+    parser = argparse.ArgumentParser(description="iGEM Pipeline Orchestrator")
+    parser.add_argument("--models", nargs="+", default=["all"], help="Models to run, e.g., model_0_5 model_1_0 model_2 model_3 all")
+    args = parser.parse_args()
+    run_pipeline(args.models)
